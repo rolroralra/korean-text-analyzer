@@ -35,10 +35,13 @@ jobs:
     - name: Build with Gradle
       run: ./gradlew build
 
+    - name: Set version from commit SHA
+      run: echo "VERSION=dev-${GITHUB_SHA::6}" >> $GITHUB_ENV
+
     # The USERNAME and TOKEN need to correspond to the credentials environment variables used in
     # the publishing section of your build.gradle
     - name: Publish to GitHub Packages
-      run: ./gradlew publish
+      run: ./gradlew publish -Pversion=$VERSION
       env:
         GPR_USERNAME: ${{ github.actor }}
         GPR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
