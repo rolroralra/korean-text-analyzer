@@ -1,5 +1,8 @@
 plugins {
 	java
+	`java-test-fixtures`
+	`java-library`
+	`maven-publish`
 	id("org.springframework.boot") version "3.5.6"
 	id("io.spring.dependency-management") version "1.1.7"
 }
@@ -33,6 +36,25 @@ dependencies {
 	annotationProcessor("org.projectlombok:lombok")
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+}
+
+publishing {
+	repositories {
+		maven {
+			name = "GitHubPackages"
+			url = uri("https://maven.pkg.github.com/rolroralra/korean-text-analyzer")
+			credentials {
+				username = System.getenv("GPR_USERNAME") ?: project.findProperty("gpr.user") as String?
+				password = System.getenv("GPR_TOKEN") ?: project.findProperty("gpr.token") as String?
+			}
+		}
+	}
+	publications {
+		create<MavenPublication>("gpr") {
+			from(components["java"])
+			artifactId = project.name
+		}
+	}
 }
 
 tasks.withType<Test> {
