@@ -1,0 +1,7 @@
+spring:
+  application:
+    name: comment-analyzer
+
+  docker:
+    compose:
+      enabled: false
