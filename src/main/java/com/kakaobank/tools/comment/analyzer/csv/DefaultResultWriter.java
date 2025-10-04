@@ -14,6 +14,8 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class DefaultResultWriter implements ResultWriter{
 
+    public static final String TAB = "\t";
+
     @Override
     public void writeResults(Map<String, Integer> schoolCounts, String outputFile)
         throws IOException {
@@ -27,7 +29,7 @@ public class DefaultResultWriter implements ResultWriter{
         try (BufferedWriter writer = Files.newBufferedWriter(
             Paths.get(outputFile), StandardCharsets.UTF_8)) {
             for (Map.Entry<String, Integer> entry : sortedEntries) {
-                writer.write(entry.getKey() + "\t" + entry.getValue());
+                writer.write(entry.getKey() + TAB + entry.getValue());
                 writer.newLine();
             }
         }
