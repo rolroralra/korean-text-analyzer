@@ -1,6 +1,8 @@
 val lombokVersion: String by project
 val komoranVersion: String by project
 val openCsvVersion: String by project
+val okHttp3Version: String by project
+val gsonVersion: String by project
 val slf4jVersion: String by project
 val logbackVersion: String by project
 val junitVersion: String by project
@@ -41,6 +43,8 @@ dependencies {
 
 	implementation("com.github.shin285:KOMORAN:$komoranVersion")
 	implementation("com.opencsv:opencsv:$openCsvVersion")
+	implementation("com.squareup.okhttp3:okhttp:$okHttp3Version")
+	implementation("com.google.code.gson:gson:$gsonVersion")
 	implementation("org.slf4j:slf4j-api:$slf4jVersion")
 	implementation("ch.qos.logback:logback-classic:$logbackVersion")
 
