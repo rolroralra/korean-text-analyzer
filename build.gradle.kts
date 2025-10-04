@@ -1,10 +1,14 @@
+val openCsvVersion: String by project
+val logbackVersion: String by project
+val slf4jVersion: String by project
+val junitVersion: String by project
+val komoranVersion: String by project
+
 plugins {
 	java
 	`java-test-fixtures`
 	`java-library`
 	`maven-publish`
-	id("org.springframework.boot") version "3.5.6"
-	id("io.spring.dependency-management") version "1.1.7"
 }
 
 group = "com.kakaobank.tools"
@@ -25,16 +29,18 @@ configurations {
 
 repositories {
 	mavenCentral()
+	maven {
+		url = uri("https://jitpack.io")
+	}
 }
 
 dependencies {
-	implementation("org.springframework.boot:spring-boot-starter-web")
-	compileOnly("org.projectlombok:lombok")
-	developmentOnly("org.springframework.boot:spring-boot-devtools")
-	developmentOnly("org.springframework.boot:spring-boot-docker-compose")
-	annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
-	annotationProcessor("org.projectlombok:lombok")
-	testImplementation("org.springframework.boot:spring-boot-starter-test")
+	implementation("com.github.shin285:KOMORAN:$komoranVersion")
+	implementation("com.opencsv:opencsv:$openCsvVersion")
+	implementation("ch.qos.logback:logback-classic:$logbackVersion")
+	implementation("org.slf4j:slf4j-api:$slf4jVersion")
+
+	testImplementation("org.junit.jupiter:junit-jupiter:$junitVersion")
 	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
