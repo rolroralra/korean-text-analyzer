@@ -2,12 +2,10 @@ package com.kakaobank.tools.comment.analyzer;
 
 import com.kakaobank.tools.comment.analyzer.csv.CsvReader;
 import com.kakaobank.tools.comment.analyzer.csv.DefaultCsvReader;
+import com.kakaobank.tools.comment.analyzer.csv.DefaultResultWriter;
+import com.kakaobank.tools.comment.analyzer.csv.ResultWriter;
 import com.opencsv.exceptions.CsvException;
-import java.io.BufferedWriter;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -40,6 +38,8 @@ public class SchoolAnalyzer {
     private final Komoran komoran = new Komoran(DEFAULT_MODEL.FULL);
 
     private final CsvReader csvReader = new DefaultCsvReader();
+
+    private final ResultWriter resultWriter = new DefaultResultWriter();
 
     public static void main(String[] args) {
         log.info("학교명 분석 시작");
@@ -277,29 +277,7 @@ public class SchoolAnalyzer {
     }
 
     public void writeResults(Map<String, Integer> schoolCounts, String outputFile) throws IOException {
-        log.info("결과 파일 작성 시작: {}", outputFile);
-
-        List<Map.Entry<String, Integer>> sortedEntries = schoolCounts.entrySet()
-            .stream()
-            .sorted(Map.Entry.<String, Integer>comparingByValue().reversed())
-            .toList();
-
-        try (BufferedWriter writer = Files.newBufferedWriter(Paths.get(outputFile), StandardCharsets.UTF_8)) {
-            for (Map.Entry<String, Integer> entry : sortedEntries) {
-                writer.write(entry.getKey() + "\t" + entry.getValue());
-                writer.newLine();
-            }
-        }
-
-        log.info("결과 파일 작성 완료: {} ({}개 학교)", outputFile, sortedEntries.size());
-
-        if (!sortedEntries.isEmpty()) {
-            log.info("상위 10개 학교:");
-            for (int i = 0; i < Math.min(10, sortedEntries.size()); i++) {
-                Map.Entry<String, Integer> entry = sortedEntries.get(i);
-                log.info("  {}. {} - {}건", i + 1, entry.getKey(), entry.getValue());
-            }
-        }
+        resultWriter.writeResults(schoolCounts, outputFile);
     }
 
     /**
