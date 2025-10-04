@@ -1,14 +1,10 @@
 package com.kakaobank.tools.comment.analyzer;
 
-import com.opencsv.CSVReader;
+import com.kakaobank.tools.comment.analyzer.csv.CsvReader;
+import com.kakaobank.tools.comment.analyzer.csv.DefaultCsvReader;
 import com.opencsv.exceptions.CsvException;
 import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -26,12 +22,10 @@ import kr.co.shineware.nlp.komoran.constant.DEFAULT_MODEL;
 import kr.co.shineware.nlp.komoran.core.Komoran;
 import kr.co.shineware.nlp.komoran.model.KomoranResult;
 import kr.co.shineware.nlp.komoran.model.Token;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class SchoolAnalyzer {
-    private static final Logger logger = LoggerFactory.getLogger(SchoolAnalyzer.class);
-
     // 전체 형태 패턴
     private static final Pattern FULL_PATTERN = Pattern.compile("([가-힣]+?(?:초등학교|중학교|고등학교))");
 //    private static final Pattern FULL_PATTERN = Pattern.compile("([가-힣]+(?:초등학교|중학교|고등학교))");
@@ -45,16 +39,18 @@ public class SchoolAnalyzer {
 
     private final Komoran komoran = new Komoran(DEFAULT_MODEL.FULL);
 
+    private final CsvReader csvReader = new DefaultCsvReader();
+
     public static void main(String[] args) {
-        logger.info("학교명 분석 시작");
+        log.info("학교명 분석 시작");
 
         SchoolAnalyzer analyzer = new SchoolAnalyzer();
         try {
             Map<String, Integer> schoolCounts = analyzer.analyzeSchools(INPUT_FILE);
             analyzer.writeResults(schoolCounts, OUTPUT_FILE);
-            logger.info("분석 완료. 총 {}개 학교 발견", schoolCounts.size());
+            log.info("분석 완료. 총 {}개 학교 발견", schoolCounts.size());
         } catch (Exception e) {
-            logger.error("분석 중 오류 발생", e);
+            log.error("분석 중 오류 발생", e);
             System.exit(1);
         }
     }
@@ -68,8 +64,8 @@ public class SchoolAnalyzer {
 
         KomoranResult result = komoran.analyze(text);
 
-        logger.info("원본        : {}", text);
-        logger.info("분석 결과 원본: {}", result.getPlainText());
+        log.info("원본        : {}", text);
+        log.info("분석 결과 원본: {}", result.getPlainText());
 
         List<Token> tokens = result.getTokenList();
 
@@ -88,49 +84,28 @@ public class SchoolAnalyzer {
         return schools;
     }
 
-
-
     public Map<String, Integer> analyzeSchools(String inputFile) throws IOException, CsvException {
-        logger.info("CSV 파일 읽기 시작: {}", inputFile);
-
         // 1단계: 전체 형태의 학교명 수집
         Set<String> fullSchoolNames = new HashSet<>();
         List<String> allMessages = new ArrayList<>();
 
-        InputStream inputStream = getClass().getClassLoader().getResourceAsStream(inputFile);
+        List<String> messages = csvReader.readAllComments(inputFile);
 
-        if (inputStream == null) {
-            File file = new File(inputFile);
-            if (!file.exists()) {
-                throw new FileNotFoundException("파일을 찾을 수 없습니다: " + inputFile);
-            }
-            inputStream = new FileInputStream(file);
+        for (String message : messages) {
+            Set<String> fullSchools = extractFullSchools(message);
+            allMessages.add(message);
+            fullSchoolNames.addAll(fullSchools);
         }
 
-        try (CSVReader reader = new CSVReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8))) {
-            List<String[]> rows = reader.readAll();
-
-            for (int i = 1; i < rows.size(); i++) {
-                String[] row = rows.get(i);
-                if (row.length > 0 && row[0] != null) {
-                    String message = row[0];
-                    allMessages.add(message);
-
-                    Set<String> fullSchools = extractFullSchools(message);
-                    fullSchoolNames.addAll(fullSchools);
-                }
-            }
-        }
-
-        logger.info("전체 형태 학교명 {}개 발견", fullSchoolNames.size());
+        log.info("전체 형태 학교명 {}개 발견", fullSchoolNames.size());
 
         // 정규화 맵 생성
         Map<String, String> normalizationMap = buildNormalizationMap(fullSchoolNames);
-        logger.info("학교명 정규화 매핑 {}개 생성", normalizationMap.size());
+        log.info("학교명 정규화 매핑 {}개 생성", normalizationMap.size());
 
         // 짧은 형태에서 전체 형태로 변환 맵 생성
         Map<String, String> shortToFull = buildShortToFullMap(fullSchoolNames);
-        logger.info("짧은 형태 매핑 {}개 생성", shortToFull.size());
+        log.info("짧은 형태 매핑 {}개 생성", shortToFull.size());
 
         // 2단계: 모든 메시지 재처리하여 카운팅
         Map<String, Integer> schoolCounts = new HashMap<>();
@@ -152,10 +127,10 @@ public class SchoolAnalyzer {
             }
         }
 
-        logger.info("CSV 파일 읽기 완료");
-        logger.info("전체 댓글 수: {}", totalRows);
-        logger.info("학교명이 포함된 댓글 수: {}", rowsWithSchools);
-        logger.info("발견된 고유 학교 수: {}", schoolCounts.size());
+        log.info("CSV 파일 읽기 완료");
+        log.info("전체 댓글 수: {}", totalRows);
+        log.info("학교명이 포함된 댓글 수: {}", rowsWithSchools);
+        log.info("발견된 고유 학교 수: {}", schoolCounts.size());
 
         return schoolCounts;
     }
@@ -228,7 +203,7 @@ public class SchoolAnalyzer {
                 // 짧은 이름을 긴 이름으로 매핑
                 if (longer.contains(shorter)) {
                     // 이미 매핑되어 있지 않은 경우만 (가장 긴 것으로)
-                    logger.debug("학교명 매핑: {} -> {}", shorter, longer);
+                    log.debug("학교명 매핑: {} -> {}", shorter, longer);
                     normalizationMap.putIfAbsent(shorter, longer);
                 }
             }
@@ -302,7 +277,7 @@ public class SchoolAnalyzer {
     }
 
     public void writeResults(Map<String, Integer> schoolCounts, String outputFile) throws IOException {
-        logger.info("결과 파일 작성 시작: {}", outputFile);
+        log.info("결과 파일 작성 시작: {}", outputFile);
 
         List<Map.Entry<String, Integer>> sortedEntries = schoolCounts.entrySet()
             .stream()
@@ -316,13 +291,13 @@ public class SchoolAnalyzer {
             }
         }
 
-        logger.info("결과 파일 작성 완료: {} ({}개 학교)", outputFile, sortedEntries.size());
+        log.info("결과 파일 작성 완료: {} ({}개 학교)", outputFile, sortedEntries.size());
 
         if (!sortedEntries.isEmpty()) {
-            logger.info("상위 10개 학교:");
+            log.info("상위 10개 학교:");
             for (int i = 0; i < Math.min(10, sortedEntries.size()); i++) {
                 Map.Entry<String, Integer> entry = sortedEntries.get(i);
-                logger.info("  {}. {} - {}건", i + 1, entry.getKey(), entry.getValue());
+                log.info("  {}. {} - {}건", i + 1, entry.getKey(), entry.getValue());
             }
         }
     }
@@ -338,7 +313,7 @@ public class SchoolAnalyzer {
 
         // 원본 길이 체크
         if (text.length() > 100) {
-            logger.debug("긴 텍스트 발견: {}자", text.length());
+            log.debug("긴 텍스트 발견: {}자", text.length());
         }
 
         // 초등학교, 중학교, 고등학교로 끝나는 패턴 찾기
@@ -349,13 +324,13 @@ public class SchoolAnalyzer {
 
             // 정리 전후 로그
             if (!text.equals(result)) {
-                logger.debug("학교명 정리: {}자 -> {}자 ({})",
+                log.debug("학교명 정리: {}자 -> {}자 ({})",
                     text.length(), result.length(), result);
             }
             return result;
         }
 
-        logger.debug("패턴 매칭 실패: {}", text.substring(0, Math.min(50, text.length())));
+        log.debug("패턴 매칭 실패: {}", text.substring(0, Math.min(50, text.length())));
 
         return text;
     }

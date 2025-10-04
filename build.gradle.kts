@@ -1,8 +1,9 @@
-val openCsvVersion: String by project
-val logbackVersion: String by project
-val slf4jVersion: String by project
-val junitVersion: String by project
+val lombokVersion: String by project
 val komoranVersion: String by project
+val openCsvVersion: String by project
+val slf4jVersion: String by project
+val logbackVersion: String by project
+val junitVersion: String by project
 
 plugins {
 	java
@@ -35,10 +36,13 @@ repositories {
 }
 
 dependencies {
+	annotationProcessor("org.projectlombok:lombok:$lombokVersion")
+	compileOnly("org.projectlombok:lombok:$lombokVersion")
+
 	implementation("com.github.shin285:KOMORAN:$komoranVersion")
 	implementation("com.opencsv:opencsv:$openCsvVersion")
-	implementation("ch.qos.logback:logback-classic:$logbackVersion")
 	implementation("org.slf4j:slf4j-api:$slf4jVersion")
+	implementation("ch.qos.logback:logback-classic:$logbackVersion")
 
 	testImplementation("org.junit.jupiter:junit-jupiter:$junitVersion")
 	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
