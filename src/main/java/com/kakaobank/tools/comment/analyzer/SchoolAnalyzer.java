@@ -12,6 +12,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 
@@ -32,90 +34,60 @@ public class SchoolAnalyzer {
 
         SchoolAnalyzer analyzer = new SchoolAnalyzer();
         try {
-            Map<String, Integer> schoolCounts = analyzer.analyzeSchools(INPUT_FILE);
+            Map<String, Long> schoolCounts = analyzer.analyzeSchools(INPUT_FILE);
             analyzer.writeResults(schoolCounts, OUTPUT_FILE);
-            log.info("분석 완료. 총 {}개 학교 발견", schoolCounts.size());
         } catch (Exception e) {
             log.error("분석 중 오류 발생", e);
             System.exit(1);
+        } finally {
+            log.info("학교명 분석 완료");
         }
     }
 
-    public Map<String, Integer> analyzeSchools(String inputFile) throws IOException, CsvException {
-        // 1단계: 전체 형태의 학교명 수집
+    public Map<String, Long> analyzeSchools(String inputFile) throws IOException, CsvException {
+        // 1. Load comments from input file
         List<String> comments = csvReader.readAllComments(inputFile);
 
-        Set<String> fullSchoolNames = comments.stream()
-            .flatMap(comment -> this.extractSchoolNames(comment).stream())
-            .collect(Collectors.toSet());
+        AtomicInteger rowsWithSchools = new AtomicInteger();
 
-        log.debug("학교 전체 목록: {}", fullSchoolNames);
+        Map<Integer, Integer> commentStatistics = new HashMap<>();
 
-        return analyzeSchoolCounts(fullSchoolNames, comments);
-    }
+        Map<String, Long> schoolCounts = comments.stream()
+            .flatMap(comment -> {
+                // 2. Extract school names from every comments
+                Set<String> extractedSchoolNames = this.extractSchoolNames(comment);
 
-    private Map<String, Integer> analyzeSchoolCounts(Set<String> fullSchoolNames,
-        List<String> allMessages) {
-        log.info("전체 형태 학교명 {}개 발견", fullSchoolNames.size());
+                commentStatistics.put(extractedSchoolNames.size(), commentStatistics.getOrDefault(extractedSchoolNames.size(), 0) + 1);
 
-        // 짧은 형태에서 전체 형태로 변환 맵 생성
-        Map<String, String> shortToFull = buildShortToFullMap(fullSchoolNames);
-        log.info("짧은 형태 매핑 {}개 생성", shortToFull.size());
-
-        // 2단계: 모든 메시지 재처리하여 카운팅
-        Map<String, Integer> schoolCounts = new HashMap<>();
-        int totalRows = allMessages.size();
-        int rowsWithSchools = 0;
-
-        for (String message : allMessages) {
-            Set<String> schools = this.extractSchoolNames(message);
-
-            if (!schools.isEmpty()) {
-                rowsWithSchools++;
-                for (String school : schools) {
-                    schoolCounts.merge(shortToFull.getOrDefault(school, school), 1, Integer::sum);
+                if (!extractedSchoolNames.isEmpty()) {
+                    rowsWithSchools.getAndIncrement();
                 }
-            }
-        }
+                return extractedSchoolNames.stream();
+            })
+            .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
 
-        log.info("CSV 파일 읽기 완료");
-        log.info("전체 댓글 수: {}", totalRows);
-        log.info("학교명이 포함된 댓글 수: {}", rowsWithSchools);
-        log.info("발견된 고유 학교 수: {}", schoolCounts.size());
+        Set<String> schoolNames = schoolCounts.keySet();
+
+        // 3. Logging stats
+        log.debug("학교 전체 목록: {}", schoolNames);
+        log.info("발견된 고유 학교 이름 수: {}", schoolNames.size());
+        log.info("전체 댓글 수: {}", comments.size());
+        log.info("학교 이름이 포함된 댓글 수: {}", rowsWithSchools.get());
+
+        commentStatistics.entrySet().stream()
+            .sorted(Map.Entry.comparingByKey())
+            .forEach(entry ->
+                log.info("{}개 학교가 포함된 댓글: {}", entry.getKey(), entry.getValue()));
+
         return schoolCounts;
     }
 
-    /**
-     * 전체 형태의 학교명만 추출
-     */
     public Set<String> extractSchoolNames(String text) {
         return schoolNameExtractor.extractSchoolNames(text);
     }
 
-    /**
-     * 짧은 형태 -> 전체 형태 매핑 생성
-     * 예: "율현중" -> "율현중학교"
-     */
-    private Map<String, String> buildShortToFullMap(Set<String> fullSchoolNames) {
-        Map<String, String> shortToFull = new HashMap<>();
 
-        for (String fullName : fullSchoolNames) {
-            if (fullName.endsWith("초등학교")) {
-                String shortName = fullName.replace("초등학교", "초");
-                shortToFull.put(shortName, fullName);
-            } else if (fullName.endsWith("중학교")) {
-                String shortName = fullName.replace("중학교", "중");
-                shortToFull.put(shortName, fullName);
-            } else if (fullName.endsWith("고등학교")) {
-                String shortName = fullName.replace("고등학교", "고");
-                shortToFull.put(shortName, fullName);
-            }
-        }
-
-        return shortToFull;
-    }
-
-    public void writeResults(Map<String, Integer> schoolCounts, String outputFile) throws IOException {
+    public void writeResults(Map<String, Long> schoolCounts, String outputFile) throws IOException {
         resultWriter.writeResults(schoolCounts, outputFile);
     }
 }

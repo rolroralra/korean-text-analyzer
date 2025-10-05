@@ -112,10 +112,10 @@ class SchoolAnalyzerTest {
     void testWriteResults(@TempDir Path tempDir) throws IOException {
         Path outputFile = tempDir.resolve("test_result.txt");
 
-        Map<String, Integer> schoolCounts = Map.of(
-            "율현중학교", 183,
-            "영덕중학교", 159,
-            "동대문중학교", 80
+        Map<String, Long> schoolCounts = Map.of(
+            "율현중학교", 183L,
+            "영덕중학교", 159L,
+            "동대문중학교", 80L
         );
 
         analyzer.writeResults(schoolCounts, outputFile.toString());
@@ -132,10 +132,10 @@ class SchoolAnalyzerTest {
     void testWriteResults_정렬확인(@TempDir Path tempDir) throws IOException {
         Path outputFile = tempDir.resolve("test_result.txt");
 
-        Map<String, Integer> schoolCounts = Map.of(
-            "가중학교", 10,
-            "나중학교", 50,
-            "다중학교", 30
+        Map<String, Long> schoolCounts = Map.of(
+            "가중학교", 10L,
+            "나중학교", 50L,
+            "다중학교", 30L
         );
 
         analyzer.writeResults(schoolCounts, outputFile.toString());

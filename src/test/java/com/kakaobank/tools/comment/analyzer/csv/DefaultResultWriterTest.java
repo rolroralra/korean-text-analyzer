@@ -26,10 +26,10 @@ class DefaultResultWriterTest {
     @Test
     void writeResults_정상_작성(@TempDir Path tempDir) throws IOException {
         // given
-        Map<String, Integer> schoolCounts = Map.of(
-            "율현중학교", 183,
-            "영덕중학교", 159,
-            "동대문중학교", 80
+        Map<String, Long> schoolCounts = Map.of(
+            "율현중학교", 183L,
+            "영덕중학교", 159L,
+            "동대문중학교", 80L
         );
         Path outputFile = tempDir.resolve("result.txt");
 
@@ -45,10 +45,10 @@ class DefaultResultWriterTest {
     @Test
     void writeResults_카운트_내림차순_정렬(@TempDir Path tempDir) throws IOException {
         // given
-        Map<String, Integer> schoolCounts = Map.of(
-            "가중학교", 10,
-            "나중학교", 50,
-            "다중학교", 30
+        Map<String, Long> schoolCounts = Map.of(
+            "가중학교", 10L,
+            "나중학교", 50L,
+            "다중학교", 30L
         );
         Path outputFile = tempDir.resolve("sorted.txt");
 
@@ -65,7 +65,7 @@ class DefaultResultWriterTest {
     @Test
     void writeResults_탭으로_구분(@TempDir Path tempDir) throws IOException {
         // given
-        Map<String, Integer> schoolCounts = Map.of("율현중학교", 183);
+        Map<String, Long> schoolCounts = Map.of("율현중학교", 183L);
         Path outputFile = tempDir.resolve("tab.txt");
 
         // when
@@ -83,9 +83,9 @@ class DefaultResultWriterTest {
     @Test
     void writeResults_UTF8_인코딩(@TempDir Path tempDir) throws IOException {
         // given
-        Map<String, Integer> schoolCounts = Map.of(
-            "서울장평중학교", 100,
-            "대구경북대학교사범대학부설중학교", 50
+        Map<String, Long> schoolCounts = Map.of(
+            "서울장평중학교", 100L,
+            "대구경북대학교사범대학부설중학교", 50L
         );
         Path outputFile = tempDir.resolve("utf8.txt");
 
@@ -101,7 +101,7 @@ class DefaultResultWriterTest {
     @Test
     void writeResults_빈_맵(@TempDir Path tempDir) throws IOException {
         // given
-        Map<String, Integer> schoolCounts = new HashMap<>();
+        Map<String, Long> schoolCounts = new HashMap<>();
         Path outputFile = tempDir.resolve("empty.txt");
 
         // when
@@ -116,9 +116,9 @@ class DefaultResultWriterTest {
     @Test
     void writeResults_대용량_데이터(@TempDir Path tempDir) throws IOException {
         // given
-        Map<String, Integer> schoolCounts = new HashMap<>();
+        Map<String, Long> schoolCounts = new HashMap<>();
         for (int i = 0; i < 1000; i++) {
-            schoolCounts.put("학교" + i, 1000 - i);
+            schoolCounts.put("학교" + i, 1000L - i);
         }
         Path outputFile = tempDir.resolve("large.txt");
 
@@ -137,10 +137,10 @@ class DefaultResultWriterTest {
     @Test
     void writeResults_동일_카운트_처리(@TempDir Path tempDir) throws IOException {
         // given
-        Map<String, Integer> schoolCounts = Map.of(
-            "가중학교", 100,
-            "나중학교", 100,
-            "다중학교", 100
+        Map<String, Long> schoolCounts = Map.of(
+            "가중학교", 100L,
+            "나중학교", 100L,
+            "다중학교", 100L
         );
         Path outputFile = tempDir.resolve("same_count.txt");
 
@@ -159,7 +159,7 @@ class DefaultResultWriterTest {
         Path outputFile = tempDir.resolve("overwrite.txt");
         Files.writeString(outputFile, "기존 내용");
 
-        Map<String, Integer> schoolCounts = Map.of("율현중학교", 50);
+        Map<String, Long> schoolCounts = Map.of("율현중학교", 50L);
 
         // when
         resultWriter.writeResults(schoolCounts, outputFile.toString());
@@ -173,9 +173,9 @@ class DefaultResultWriterTest {
     @Test
     void writeResults_특수문자_학교명(@TempDir Path tempDir) throws IOException {
         // given
-        Map<String, Integer> schoolCounts = Map.of(
-            "서울(강남)중학교", 10,
-            "부산-해운대중학교", 20
+        Map<String, Long> schoolCounts = Map.of(
+            "서울(강남)중학교", 10L,
+            "부산-해운대중학교", 20L
         );
         Path outputFile = tempDir.resolve("special.txt");
 
@@ -191,9 +191,9 @@ class DefaultResultWriterTest {
     @Test
     void writeResults_각_줄_개행문자_확인(@TempDir Path tempDir) throws IOException {
         // given
-        Map<String, Integer> schoolCounts = Map.of(
-            "율현중학교", 100,
-            "영덕중학교", 50
+        Map<String, Long> schoolCounts = Map.of(
+            "율현중학교", 100L,
+            "영덕중학교", 50L
         );
         Path outputFile = tempDir.resolve("newline.txt");
 
@@ -210,7 +210,7 @@ class DefaultResultWriterTest {
     @Test
     void writeResults_파일_생성_디렉토리_없음(@TempDir Path tempDir) {
         // given
-        Map<String, Integer> schoolCounts = Map.of("율현중학교", 100);
+        Map<String, Long> schoolCounts = Map.of("율현중학교", 100L);
         Path outputFile = tempDir.resolve("subdir/result.txt");
 
         // when & then
@@ -222,9 +222,9 @@ class DefaultResultWriterTest {
     @Test
     void writeResults_상위10개_로깅_확인(@TempDir Path tempDir) throws IOException {
         // given
-        Map<String, Integer> schoolCounts = new HashMap<>();
+        Map<String, Long> schoolCounts = new HashMap<>();
         for (int i = 0; i < 20; i++) {
-            schoolCounts.put("학교" + i, 100 - i);
+            schoolCounts.put("학교" + i, 100L - i);
         }
         Path outputFile = tempDir.resolve("top10.txt");
 

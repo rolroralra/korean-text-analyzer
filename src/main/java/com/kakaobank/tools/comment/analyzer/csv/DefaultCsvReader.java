@@ -33,6 +33,8 @@ public class DefaultCsvReader implements CsvReader {
             return reader.readAll().stream()
                 .filter(row -> row.length > 0 && row[0] != null && !row[0].isBlank())
                 .map(row -> row[0]);
+        } finally {
+            log.info("CSV 파일 읽기 완료: {}", inputFile);
         }
     }
 

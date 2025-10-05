@@ -17,31 +17,30 @@ public class DefaultResultWriter implements ResultWriter{
     public static final String TAB = "\t";
 
     @Override
-    public void writeResults(Map<String, Integer> schoolCounts, String outputFile)
+    public void writeResults(Map<String, Long> schoolCounts, String outputFile)
         throws IOException {
         log.info("결과 파일 작성 시작: {}", outputFile);
 
-        List<Entry<String, Integer>> sortedEntries = schoolCounts.entrySet()
+        List<Entry<String, Long>> sortedEntries = schoolCounts.entrySet()
             .stream()
-            .sorted(Map.Entry.<String, Integer>comparingByValue().reversed())
+            .sorted(Map.Entry.<String, Long>comparingByValue().reversed())
             .toList();
 
         try (BufferedWriter writer = Files.newBufferedWriter(
             Paths.get(outputFile), StandardCharsets.UTF_8)) {
-            for (Map.Entry<String, Integer> entry : sortedEntries) {
+            for (Map.Entry<String, Long> entry : sortedEntries) {
                 writer.write(entry.getKey() + TAB + entry.getValue());
                 writer.newLine();
             }
         }
 
-        loggingResultSummary(outputFile, sortedEntries);
+        loggingResultSummary(sortedEntries);
 
+        log.info("결과 파일 작성 완료: {}", outputFile);
     }
 
-    private static void loggingResultSummary(String outputFile, List<Entry<String, Integer>> sortedEntries) {
-        log.info("결과 파일 작성 완료: {} ({}개 학교)", outputFile, sortedEntries.size());
-
-        List<Entry<String, Integer>> topN = sortedEntries.stream()
+    private static void loggingResultSummary(List<Entry<String, Long>> sortedEntries) {
+        List<Entry<String, Long>> topN = sortedEntries.stream()
             .limit(10)
             .toList();
 

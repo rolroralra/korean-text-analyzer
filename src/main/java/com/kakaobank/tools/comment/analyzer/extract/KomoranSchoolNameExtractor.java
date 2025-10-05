@@ -17,7 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class KomoranSchoolNameExtractor implements SchoolNameExtractor {
 
-    private static final Pattern FULL_PATTERN = Pattern.compile("([가-힣]+?(?:초등학교|중학교|고등학교|대학교|초|중|고|대|대학|학교))", Pattern.CANON_EQ);
+    private static final Pattern FULL_PATTERN = Pattern.compile("([가-힣]+?(?:초등학교|중학교|고등학교|대학교))", Pattern.CANON_EQ);
 
     private static final Pattern SHORT_PATTERN = Pattern.compile("([가-힣]+?(?:초|중|고|대|대학))", Pattern.CANON_EQ);
 
