@@ -1,8 +1,5 @@
 package com.kakaobank.tools.comment.analyzer;
 
-import com.kakaobank.tools.comment.analyzer.csv.DefaultCsvReader;
-import com.kakaobank.tools.comment.analyzer.csv.DefaultResultWriter;
-import com.kakaobank.tools.comment.analyzer.extract.KomoranSchoolNameExtractor;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 
@@ -21,11 +18,7 @@ public class SchoolAnalyzerApplication {
         try {
             log.info("학교명 분석 시작");
 
-            SchoolAnalyzer analyzer = new SchoolAnalyzer(
-                new DefaultCsvReader(),
-                new DefaultResultWriter(),
-                new KomoranSchoolNameExtractor()
-            );
+            SchoolAnalyzer analyzer = new SchoolAnalyzer();
 
             Map<String, Long> schoolCounts = analyzer.analyzeSchools(INPUT_FILE);
             analyzer.writeResults(schoolCounts, OUTPUT_FILE);

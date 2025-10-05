@@ -1,7 +1,10 @@
 package com.kakaobank.tools.comment.analyzer;
 
 import com.kakaobank.tools.comment.analyzer.csv.CsvReader;
+import com.kakaobank.tools.comment.analyzer.csv.DefaultCsvReader;
+import com.kakaobank.tools.comment.analyzer.csv.DefaultResultWriter;
 import com.kakaobank.tools.comment.analyzer.csv.ResultWriter;
+import com.kakaobank.tools.comment.analyzer.extract.KomoranSchoolNameExtractor;
 import com.kakaobank.tools.comment.analyzer.extract.SchoolNameExtractor;
 import com.opencsv.exceptions.CsvException;
 import java.io.IOException;
@@ -24,6 +27,10 @@ public class SchoolAnalyzer {
     private final ResultWriter resultWriter;
 
     private final SchoolNameExtractor schoolNameExtractor;
+
+    public SchoolAnalyzer() {
+        this(new DefaultCsvReader(), new DefaultResultWriter(), new KomoranSchoolNameExtractor());
+    }
 
     public Map<String, Long> analyzeSchools(String inputFile) throws IOException, CsvException {
         // 1. Load comments from input file

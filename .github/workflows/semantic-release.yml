@@ -26,6 +26,15 @@ jobs:
         with:
           node-version: '20'
 
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+
       - name: Install dependencies
         run: npm ci
 
@@ -35,3 +44,41 @@ jobs:
           GPR_USERNAME: ${{ github.actor }}
           GPR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: npx semantic-release
+
+        # 릴리스가 생성되었는지 확인
+      - name: Check if release was created
+        id: check_release
+        run: |
+          if git describe --exact-match --tags HEAD 2>/dev/null; then
+           echo "release_created=true" >> $GITHUB_OUTPUT
+           echo "version=$(git describe --exact-match --tags HEAD)" >> $GITHUB_OUTPUT
+          else
+           echo "release_created=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Build with Gradle
+        if: steps.check_release.outputs.release_created == 'true'
+        run: ./gradlew build -Pversion=${{ steps.check_release.outputs.version }}
+
+      - name: Create Distribution
+        if: steps.check_release.outputs.release_created == 'true'
+        run: ./gradlew installDist distZip distTar -Pversion=${{ steps.check_release.outputs.version }}
+
+      - name: Publish to GitHub Packages
+        if: steps.check_release.outputs.release_created == 'true'
+        run: ./gradlew publish -Pversion=${{ steps.check_release.outputs.version }}
+        env:
+          GPR_USERNAME: ${{ github.actor }}
+          GPR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload Release Assets
+        if: steps.check_release.outputs.release_created == 'true'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.check_release.outputs.version }}
+          files: |
+            build/libs/*.jar
+            build/distributions/*.zip
+            build/distributions/*.tar.gz
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
