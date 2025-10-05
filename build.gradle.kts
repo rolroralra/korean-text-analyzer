@@ -84,6 +84,21 @@ tasks.testFixturesJar {
 	enabled = false
 }
 
+distributions {
+	main {
+		distributionBaseName.set(project.name)
+	}
+}
+
+tasks.distZip {
+	archiveFileName.set("${project.name}-${project.version}.zip")
+}
+
+tasks.distTar {
+	archiveFileName.set("${project.name}-${project.version}.tar.gz")
+	compression = Compression.GZIP
+}
+
 publishing {
 	repositories {
 		maven {
