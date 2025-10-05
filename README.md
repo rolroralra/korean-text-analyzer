@@ -19,11 +19,12 @@
 - Java 버전은 17이어야 한다.
 
 # Backlogs
-- [ ] Parameterization for input file name, output file name
+  - [ ] Parameterization for input file name, output file name
 - [ ] Dynamic Configuration for `school_name_list.txt`, `user_dic.txt`
   - By using API Client, Database, Redis and so on.
   - It can be also implemented by just using application.yaml. 
 - [ ] Optimization performance
+- [ ] gradle cache & parallel setting (make faster build time)
 - [ ] shadow fat jar (resolve KOMORAN library dependency)
   - remove `https://jitpack.io` in build.gradle.kts
 - [ ] Gradle Catalog Version
@@ -42,6 +43,9 @@
 ```
 
 ## Executable File 
+- You can also download.
+  - [Release 1.1.3](https://github.com/rolroralra/korean-text-analyzer/releases/tag/1.1.3) 
+  - [Ask to email (rolroralra@gmail.com)](mailto:rolroralra@gmail.com)  
 ```bash
 cp ${YOUR_PATH}/comments.csv build/install/comment-analyzer/bin
 
@@ -73,7 +77,7 @@ result.log result.txt
 경원중학교      23
 양덕여자중학교  23
 대기고등학교    22
-소하고등학교    22
+소하고등학교    22https://github.com/rolroralra/korean-text-analyzer/releases/download/1.1.3/comment-analyzer-1.1.3.zip
 태장중학교      22
 하양여자중학교  15
 고촌중학교      12
@@ -334,7 +338,7 @@ repositories {
 
 ## Dependency
 ```kotlin
-implementation("com.kakaobank.tools:comment-analyzer:1.1.2")
+implementation("com.kakaobank.tools:comment-analyzer:1.1.3")
 ```
 
 ## Code Exmample
