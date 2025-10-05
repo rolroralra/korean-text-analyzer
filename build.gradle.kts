@@ -13,6 +13,7 @@ plugins {
 	`java-test-fixtures`
 	`java-library`
 	`maven-publish`
+	application
 }
 
 group = "com.kakaobank.tools"
@@ -54,6 +55,35 @@ dependencies {
 	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
+application {
+	mainClass.set("com.kakaobank.tools.comment.analyzer.SchoolAnalyzerApplication")
+}
+
+sourceSets {
+	main {
+		resources {
+			srcDirs("src/main/resources")
+		}
+	}
+	test {
+		resources {
+			srcDirs("src/main/resources", "src/test/resources")
+		}
+	}
+}
+
+tasks.withType<Test> {
+	useJUnitPlatform()
+}
+
+tasks.withType<Copy> {
+	duplicatesStrategy = DuplicatesStrategy.INCLUDE  // 또는 INCLUDE, EXCLUDE
+}
+
+tasks.testFixturesJar {
+	enabled = false
+}
+
 publishing {
 	repositories {
 		maven {
@@ -71,20 +101,4 @@ publishing {
 			artifactId = project.name
 		}
 	}
-}
-
-sourceSets {
-	test {
-		resources {
-			srcDirs("src/main/resources", "src/test/resources")
-		}
-	}
-}
-
-tasks.withType<Test> {
-	useJUnitPlatform()
-}
-
-tasks.testFixturesJar {
-	enabled = false
 }

@@ -1,10 +1,7 @@
 package com.kakaobank.tools.comment.analyzer;
 
 import com.kakaobank.tools.comment.analyzer.csv.CsvReader;
-import com.kakaobank.tools.comment.analyzer.csv.DefaultCsvReader;
-import com.kakaobank.tools.comment.analyzer.csv.DefaultResultWriter;
 import com.kakaobank.tools.comment.analyzer.csv.ResultWriter;
-import com.kakaobank.tools.comment.analyzer.extract.KomoranSchoolNameExtractor;
 import com.kakaobank.tools.comment.analyzer.extract.SchoolNameExtractor;
 import com.opencsv.exceptions.CsvException;
 import java.io.IOException;
@@ -15,34 +12,18 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
+@RequiredArgsConstructor
 public class SchoolAnalyzer {
-    private static final String OUTPUT_FILE = "result.txt";
 
-    private static final String INPUT_FILE = "comments.csv";
+    private final CsvReader csvReader;
 
-    private final CsvReader csvReader = new DefaultCsvReader();
+    private final ResultWriter resultWriter;
 
-    private final ResultWriter resultWriter = new DefaultResultWriter();
-
-    private final SchoolNameExtractor schoolNameExtractor = new KomoranSchoolNameExtractor();
-
-    public static void main(String[] args) {
-        log.info("학교명 분석 시작");
-
-        SchoolAnalyzer analyzer = new SchoolAnalyzer();
-        try {
-            Map<String, Long> schoolCounts = analyzer.analyzeSchools(INPUT_FILE);
-            analyzer.writeResults(schoolCounts, OUTPUT_FILE);
-        } catch (Exception e) {
-            log.error("분석 중 오류 발생", e);
-            System.exit(1);
-        } finally {
-            log.info("학교명 분석 완료");
-        }
-    }
+    private final SchoolNameExtractor schoolNameExtractor;
 
     public Map<String, Long> analyzeSchools(String inputFile) throws IOException, CsvException {
         // 1. Load comments from input file
@@ -85,7 +66,6 @@ public class SchoolAnalyzer {
     public Set<String> extractSchoolNames(String text) {
         return schoolNameExtractor.extractSchoolNames(text);
     }
-
 
     public void writeResults(Map<String, Long> schoolCounts, String outputFile) throws IOException {
         resultWriter.writeResults(schoolCounts, outputFile);

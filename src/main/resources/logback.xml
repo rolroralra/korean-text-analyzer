@@ -19,4 +19,6 @@
 
   <logger name="com.kakaobank.tools.comment.analyzer" level="INFO"/>
   <logger name="com.kakaobank.tools.comment.analyzer.extractor" level="INFO"/>
+  <logger name="com.kakaobank.tools.comment.analyzer.csv" level="INFO"/>
+  <logger name="com.kakaobank.tools.comment.analyzer.name" level="INFO"/>
 </configuration>

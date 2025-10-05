@@ -3,6 +3,9 @@ package com.kakaobank.tools.comment.analyzer;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
+import com.kakaobank.tools.comment.analyzer.csv.DefaultCsvReader;
+import com.kakaobank.tools.comment.analyzer.csv.DefaultResultWriter;
+import com.kakaobank.tools.comment.analyzer.extract.KomoranSchoolNameExtractor;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -19,7 +22,11 @@ class SchoolAnalyzerTest {
 
     @BeforeEach
     void setUp() {
-        analyzer = new SchoolAnalyzer();
+        analyzer = new SchoolAnalyzer(
+            new DefaultCsvReader(),
+            new DefaultResultWriter(),
+            new KomoranSchoolNameExtractor()
+        );
     }
 
     @Test
