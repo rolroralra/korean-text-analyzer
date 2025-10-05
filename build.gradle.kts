@@ -6,6 +6,7 @@ val gsonVersion: String by project
 val slf4jVersion: String by project
 val logbackVersion: String by project
 val junitVersion: String by project
+val assertjVersion: String by project
 
 plugins {
 	java
@@ -15,8 +16,8 @@ plugins {
 }
 
 group = "com.kakaobank.tools"
-version = "0.0.1-SNAPSHOT"
-description = "Demo project for Spring Boot"
+version = project.findProperty("version") as String
+description = "Comment Text Analyzer for School Names"
 
 java {
 	toolchain {
@@ -49,6 +50,7 @@ dependencies {
 	implementation("ch.qos.logback:logback-classic:$logbackVersion")
 
 	testImplementation("org.junit.jupiter:junit-jupiter:$junitVersion")
+	testImplementation("org.assertj:assertj-core:$assertjVersion")
 	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
@@ -71,6 +73,18 @@ publishing {
 	}
 }
 
+sourceSets {
+	test {
+		resources {
+			srcDirs("src/main/resources", "src/test/resources")
+		}
+	}
+}
+
 tasks.withType<Test> {
 	useJUnitPlatform()
+}
+
+tasks.testFixturesJar {
+	enabled = false
 }

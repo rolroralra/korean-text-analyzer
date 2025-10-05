@@ -6,6 +6,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -13,8 +15,9 @@ import org.junit.jupiter.params.provider.ValueSource;
 class NeisApiClientTest {
 
     private static final String SCHOOL_LIST_FILENAME = "school_name_list.txt";
+    private static final String USER_DICT_FILENAME = "user_dic.txt";
 
-    private NeisApiClient neisApiClient = new NeisApiClient("280aa8a1663740e49e464b09ec7c3f85");
+    private final NeisApiClient neisApiClient = new NeisApiClient("280aa8a1663740e49e464b09ec7c3f85");
 
     @BeforeAll
     static void setup() throws IOException {
@@ -32,11 +35,44 @@ class NeisApiClientTest {
             .map(Row::schulNm)
             .toList();
 
+        List<String> shortSchoolNames = schoolInfo.schoolInfo().get(1).row()
+            .stream()
+            .map(Row::schulNm)
+            .map(this::shortenSchoolName)
+            .toList();
+
+        Set<String> finalSchoolNames = new TreeSet<>(schoolNames);
+        finalSchoolNames.addAll(shortSchoolNames);
+
         Files.write(
             Path.of(SCHOOL_LIST_FILENAME),
-            schoolNames,
+            finalSchoolNames,
             StandardOpenOption.CREATE,
             StandardOpenOption.APPEND
         );
+
+        Files.write(
+            Path.of(USER_DICT_FILENAME),
+            finalSchoolNames.stream().map(it -> it + "\tNNG").toList(),
+            StandardOpenOption.CREATE,
+            StandardOpenOption.APPEND
+        );
+    }
+
+    private String shortenSchoolName(String schoolName) {
+        if (schoolName.endsWith("대학교")) {
+            return schoolName.substring(0, schoolName.length() - 2);
+        }
+        if (schoolName.endsWith("초등학교")) {
+            return schoolName.substring(0, schoolName.length() - 3);
+        }
+        if (schoolName.endsWith("중학교")) {
+            return schoolName.substring(0, schoolName.length() - 2);
+        }
+        if (schoolName.endsWith("고등학교")) {
+            return schoolName.substring(0, schoolName.length() - 3);
+        }
+
+        return schoolName;
     }
 }
