@@ -9,9 +9,11 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
+@Disabled("This test is only used for user_dic.txt, school_name_list.txt")
 class NeisApiClientTest {
 
     private static final String SCHOOL_LIST_FILENAME = "school_name_list.txt";
