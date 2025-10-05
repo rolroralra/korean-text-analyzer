@@ -9,7 +9,7 @@ name: Gradle Package
 
 on:
   release:
-    types: [published]
+    types: [created, published]
 
 jobs:
   build:
@@ -38,8 +38,9 @@ jobs:
     - name: Build with Gradle
       run: ./gradlew build -Pversion=${{ github.event.release.tag_name }}
 
-#    - name: Set version from commit SHA
-#      run: echo "VERSION=dev-${GITHUB_SHA::6}" >> $GITHUB_ENV
+    - name: Create Distribution
+      run: |
+        ./gradlew installDist distZip distTar -Pversion=${{ github.event.release.tag_name }}
 
     # The USERNAME and TOKEN need to correspond to the credentials environment variables used in
     # the publishing section of your build.gradle
@@ -48,3 +49,15 @@ jobs:
       env:
         GPR_USERNAME: ${{ github.actor }}
         GPR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Upload Release Assets
+      if: steps.semantic.outputs.new_release_published == 'true'
+      uses: softprops/action-gh-release@v2
+      with:
+        tag_name: v${{ steps.semantic.outputs.new_release_version }}
+        files: |
+          build/libs/*.jar
+          build/distributions/*.zip
+          build/distributions/*.tar.gz
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
