@@ -20,6 +20,9 @@
 
 # Backlogs
 - [ ] Parameterization for input file name, output file name
+- [ ] Dynamic Configuration for `school_name_list.txt`, `user_dic.txt`
+  - By using API Client, Database, Redis and so on.
+  - It can be also implemented by just using application.yaml. 
 - [ ] Optimization performance
 - [ ] shadow fat jar (resolve KOMORAN library dependency)
   - remove `https://jitpack.io` in build.gradle.kts
