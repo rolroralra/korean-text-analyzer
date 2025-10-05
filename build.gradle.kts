@@ -42,9 +42,8 @@ repositories {
 dependencies {
 	annotationProcessor("org.projectlombok:lombok:$lombokVersion")
 	compileOnly("org.projectlombok:lombok:$lombokVersion")
-
-	implementation("com.github.shin285:KOMORAN:$komoranVersion")
-	implementation("com.opencsv:opencsv:$openCsvVersion")
+	api("com.github.shin285:KOMORAN:$komoranVersion")
+	api("com.opencsv:opencsv:$openCsvVersion")
 	implementation("com.squareup.okhttp3:okhttp:$okHttp3Version")
 	implementation("com.google.code.gson:gson:$gsonVersion")
 	implementation("org.slf4j:slf4j-api:$slf4jVersion")
