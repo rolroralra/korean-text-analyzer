@@ -9,7 +9,7 @@ name: Gradle Package
 
 on:
   release:
-    types: [created]
+    types: [published]
 
 jobs:
   build:
@@ -21,6 +21,9 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
+      with:
+        ref: ${{ github.event.release.tag_name }}
+
     - name: Set up JDK 17
       uses: actions/setup-java@v4
       with:
@@ -33,15 +36,15 @@ jobs:
       uses: gradle/actions/setup-gradle@af1da67850ed9a4cedd57bfd976089dd991e2582 # v4.0.0
 
     - name: Build with Gradle
-      run: ./gradlew build
+      run: ./gradlew build -Pversion=${{ github.event.release.tag_name }}
 
-    - name: Set version from commit SHA
-      run: echo "VERSION=dev-${GITHUB_SHA::6}" >> $GITHUB_ENV
+#    - name: Set version from commit SHA
+#      run: echo "VERSION=dev-${GITHUB_SHA::6}" >> $GITHUB_ENV
 
     # The USERNAME and TOKEN need to correspond to the credentials environment variables used in
     # the publishing section of your build.gradle
     - name: Publish to GitHub Packages
-      run: ./gradlew publish -Pversion=$VERSION
+      run: ./gradlew publish -Pversion=${{ github.event.release.tag_name }}
       env:
         GPR_USERNAME: ${{ github.actor }}
         GPR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
